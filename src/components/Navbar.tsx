@@ -9,7 +9,7 @@ function Navbar() {
     <div className="navbar-outer-container">
       <nav className="navbar-inner-container">
         <Link to="/">
-          <p className="sunsmart-title">Sunsmart</p>
+          <p className="sunsmart-title">Sunscreen Store</p>
         </Link>
         <div>
           <Link to="/cart" className="shopping-bag">
