@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearch } from "../context/SearchContext";
+
 import { LuSettings2 } from "react-icons/lu";
 import SkeletonCard from "./SkeletonCard";
 import type { Product } from "../data/products";
@@ -9,17 +11,35 @@ interface ProductsCatalogProps {
   products: Product[];
 }
 
+// Clean, readable filter functions
+const filterByType = (product: Product, selectedTypes: string[]): boolean => {
+  return selectedTypes.length === 0 || selectedTypes.includes(product.type);
+};
+
+const filterBySPF = (product: Product, selectedSPFs: string[]): boolean => {
+  return selectedSPFs.length === 0 || selectedSPFs.includes(product.spf.toString());
+};
+
+const filterByReefSafe = (product: Product, selectedReefOptions: string[]): boolean => {
+  if (selectedReefOptions.length === 0) return true;
+  // Only "yes" option exists in our filter, so if selected, product must be reef safe
+  return selectedReefOptions.includes("yes") ? product.reefSafe : true;
+};
+
+const filterBySearch = (product: Product, searchTerm: string): boolean => {
+  return searchTerm === "" || product.name.toLowerCase().includes(searchTerm.toLowerCase());
+};
+
 function ProductsCatalog({ products }: ProductsCatalogProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [tempSelectedFilters, setTempSelectedFilters] = useState<{
-    [key: string]: string[];
-  }>({});
-  const [appliedFilters, setAppliedFilters] = useState<{
-    [key: string]: string[];
-  }>({});
+  const [tempSelectedFilters, setTempSelectedFilters] = useState<{ [key: string]: string[] }>({});
+  const [appliedFilters, setAppliedFilters] = useState<{ [key: string]: string[] }>({});
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { searchTerm } = useSearch();
+
+  // Open drawer and set temp filters to current applied ones
   const openDrawer = () => {
     setTempSelectedFilters(appliedFilters);
     setIsDrawerOpen(true);
@@ -27,6 +47,7 @@ function ProductsCatalog({ products }: ProductsCatalogProps) {
 
   const closeDrawer = () => setIsDrawerOpen(false);
 
+  // Disable scroll when drawer is open
   useEffect(() => {
     if (isDrawerOpen) {
       document.body.style.overflow = "hidden";
@@ -38,61 +59,68 @@ function ProductsCatalog({ products }: ProductsCatalogProps) {
     };
   }, [isDrawerOpen]);
 
+  // Handle checkbox change inside drawer - simplified
   const handleTempFilterChange = (
     groupKey: string,
     value: string,
     isChecked: boolean
   ) => {
     setTempSelectedFilters((prev) => {
-      const group = prev[groupKey] || [];
+      const currentGroup = prev[groupKey] || [];
+      
       if (isChecked) {
-        return { ...prev, [groupKey]: [...new Set([...group, value])] };
+        // Add value if not already present
+        return {
+          ...prev,
+          [groupKey]: [...currentGroup, value]
+        };
       } else {
-        return { ...prev, [groupKey]: group.filter((v) => v !== value) };
+        // Remove value
+        return {
+          ...prev,
+          [groupKey]: currentGroup.filter(v => v !== value)
+        };
       }
     });
   };
 
+  // Clear all filters - no need to manually reset filteredProducts
   const handleClearFilters = () => {
     setTempSelectedFilters({});
     setAppliedFilters({});
-    setFilteredProducts(products);
   };
 
+  // Apply filters and close drawer
   const applyFilters = useCallback(() => {
     setIsLoading(true);
-    setIsDrawerOpen(false);
 
     setTimeout(() => {
       setAppliedFilters(tempSelectedFilters);
-
-      const hasFilters = Object.values(tempSelectedFilters).some(
-        (arr) => arr.length > 0
-      );
-
-      if (!hasFilters) {
-        setFilteredProducts(products);
-      } else {
-        const filtered = products.filter((product) => {
-          return Object.entries(tempSelectedFilters).every(([key, values]) => {
-            if (values.length === 0) return true;
-            switch (key) {
-              case "type":
-                return values.includes(product.type);
-              case "spf":
-                return values.includes(product.spf.toString());
-              case "reef":
-                return values.includes(product.reefSafe ? "yes" : "no");
-              default:
-                return true;
-            }
-          });
-        });
-        setFilteredProducts(filtered);
-      }
+      setIsDrawerOpen(false);
       setIsLoading(false);
     }, 500);
-  }, [tempSelectedFilters, products]);
+  }, [tempSelectedFilters]);
+
+  // Clean, readable filtering function
+  const filterProducts = useCallback(() => {
+    const filtered = products.filter((product) => {
+      // Apply each filter type - clear and easy to understand
+      const passesTypeFilter = filterByType(product, appliedFilters.type || []);
+      const passesSPFFilter = filterBySPF(product, appliedFilters.spf || []);
+      const passesReefFilter = filterByReefSafe(product, appliedFilters.reef || []);
+      const passesSearchFilter = filterBySearch(product, searchTerm);
+
+      // Product must pass ALL filters
+      return passesTypeFilter && passesSPFFilter && passesReefFilter && passesSearchFilter;
+    });
+
+    setFilteredProducts(filtered);
+  }, [appliedFilters, searchTerm, products]);
+
+  // Run filtering when search term or applied filters change
+  useEffect(() => {
+    filterProducts();
+  }, [filterProducts]);
 
   const numberOfProducts = filteredProducts.length;
   const hasActiveFiltersInDrawer = Object.values(tempSelectedFilters).some(
@@ -101,7 +129,7 @@ function ProductsCatalog({ products }: ProductsCatalogProps) {
 
   return (
     <div className="products-catalog-container">
-      {/* 1. Filters container with open button and total count */}
+      {/* 1. Filters button and total count */}
       <div className="filters-container">
         <button onClick={openDrawer} className="is-drawer-open-button">
           <LuSettings2 className="filter-icon" />
@@ -110,23 +138,20 @@ function ProductsCatalog({ products }: ProductsCatalogProps) {
         <p>{numberOfProducts} Total</p>
       </div>
 
-      {/* 2. Render drawer and overlay only if open */}
-      {isDrawerOpen && (
-        <>
-          <div className="drawer-overlay" onClick={closeDrawer}></div>
-          <FiltersDrawer
-            isOpen={isDrawerOpen}
-            onClose={closeDrawer}
-            selectedFilters={tempSelectedFilters}
-            hasActiveFilters={hasActiveFiltersInDrawer}
-            onFilterChange={handleTempFilterChange}
-            onClearFilters={handleClearFilters}
-            onApplyFilters={applyFilters}
-          />
-        </>
-      )}
+      {/* 2. Filters Drawer */}
+      {isDrawerOpen && <div className="drawer-overlay" onClick={closeDrawer}></div>}
+      
+      <FiltersDrawer
+        isOpen={isDrawerOpen}
+        onClose={closeDrawer}
+        selectedFilters={tempSelectedFilters}
+        hasActiveFilters={hasActiveFiltersInDrawer}
+        onFilterChange={handleTempFilterChange}
+        onClearFilters={handleClearFilters}
+        onApplyFilters={applyFilters}
+      />
 
-      {/* 3. Products grid */}
+      {/* 3. Product Grid */}
       <div className="products-catalog-grid">
         {isLoading ? (
           Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
