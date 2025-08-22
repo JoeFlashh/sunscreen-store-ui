@@ -107,6 +107,7 @@ button {
   color: inherit;
   outline: none;
   box-shadow: none;
+  border-radius: 0;
 
   width: 0;
   opacity: 0;
@@ -127,6 +128,8 @@ button {
   user-select: none;
   border: none;
   background-color: transparent;
+  -webkit-appearance: none;
+  border-radius: 0;
 }
 
 .shopping-bag {
