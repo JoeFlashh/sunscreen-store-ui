@@ -87,31 +87,41 @@ button {
   font-weight: 700;
 }
 
-.input-bag-container{
+.input-bag-container {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-.search-input-container{
+.search-input-container {
   display: flex;
   position: relative;
 }
-.search-input-container input{
-  width: 0;
+.search-input-container .search-input {
+  appearance: none;
+  -webkit-appearance: none; /* For Safari */
+  background: none;
   border: none;
-  transition: width 0.3s ease, border-color 0.3s ease;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
   outline: none;
-  /* Hide input text when collapsed */
+  box-shadow: none;
+
+  width: 0;
   opacity: 0;
   pointer-events: none;
+  transition: width 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  font-size: 1rem;
+  border-bottom: none;
 }
 .search-input.expanded {
   width: 175px; /* or your preferred width */
   opacity: 1;
   pointer-events: auto;
-  border-bottom: #333 solid 1px ;
+  border-bottom: 1px solid #333;
 }
-.search-icon{
+.search-icon {
   cursor: pointer;
   font-size: 1.4rem;
   user-select: none;

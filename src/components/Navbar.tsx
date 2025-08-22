@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { useSearch } from "../context/SearchContext";
 
@@ -7,16 +6,15 @@ import { HiOutlineSearch } from "react-icons/hi";
 
 import { Link } from "react-router-dom";
 
-
 function Navbar() {
   const [expandSearch, setExpandSearch] = useState(false);
-  console.log(setExpandSearch)
+  console.log(setExpandSearch);
   const { searchTerm, setSearchTerm } = useSearch();
-    const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const cartItemCount = 0;
 
-    // Focus input when it expands
+  // Focus input when it expands
   useEffect(() => {
     if (expandSearch) {
       inputRef.current?.focus();
@@ -30,16 +28,19 @@ function Navbar() {
           <p className="sunsmart-title">Sun</p>
         </Link>
         <div className="input-bag-container">
-          <form onSubmit={(e) => e.preventDefault()} className="search-input-container">
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="search-input-container"
+          >
             {/* Input visible & animated only if expanded */}
-            <button  
+            <button
               onClick={() => setExpandSearch((prev) => !prev)}
               className="search-icon"
               aria-label="Toggle search input"
               role="button"
               tabIndex={0}
-              >
-            <HiOutlineSearch/>
+            >
+              <HiOutlineSearch />
             </button>
             <input
               ref={inputRef}
