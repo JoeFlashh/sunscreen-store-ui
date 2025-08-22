@@ -12,6 +12,19 @@ body {
   line-height: 1.5;
 }
 
+input,
+textarea,
+button,
+select,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+a:focus,
+a:visited,
+a:active {
+  outline: none;
+}
+
 button {
   cursor: pointer;
   display: inline-block;
@@ -98,7 +111,7 @@ button {
 }
 .search-input-container .search-input {
   appearance: none;
-  -webkit-appearance: none; /* For Safari */
+  -webkit-appearance: none;
   background: none;
   border: none;
   padding: 0;
@@ -128,6 +141,7 @@ button {
   user-select: none;
   border: none;
   background-color: transparent;
+  color: #333;
   appearance: none;
   -webkit-appearance: none;
   border-radius: 0;
@@ -152,7 +166,7 @@ button {
 /* HERO BANNER */
 .hero-banner-img-container {
   position: relative;
-  height: 400px;
+  height: 300px;
   overflow: hidden;
   margin-top: 80px;
 }
