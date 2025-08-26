@@ -5,6 +5,7 @@ import { HiOutlineShoppingBag } from "react-icons/hi2";
 import { HiOutlineSearch } from "react-icons/hi";
 
 import { Link } from "react-router-dom";
+import yellowImg from "../assets/images/yellow.png";
 
 function Navbar() {
   const [expandSearch, setExpandSearch] = useState(false);
@@ -25,7 +26,16 @@ function Navbar() {
     <div className="navbar-outer-container">
       <nav className="navbar-inner-container">
         <Link to="/">
-          <p className="sunsmart-title">Sun</p>
+          <img
+            src={yellowImg}
+            alt="Sunscreen Store Logo"
+            style={{
+              height: 75,
+              width: 75,
+              borderRadius: "50%",
+              objectFit: "cover",
+            }}
+          />
         </Link>
         <div className="input-bag-container">
           <form

@@ -166,7 +166,7 @@ button {
 /* HERO BANNER */
 .hero-banner-img-container {
   position: relative;
-  height: 300px;
+  height: 600px;
   overflow: hidden;
   margin-top: 80px;
 }
@@ -503,6 +503,14 @@ button {
 }
 
 @media (max-width: 768px) {
+  /* HERO BANNER */
+  .hero-banner-img-container {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    margin-top: 80px;
+  }
+
   .filters-drawer {
     width: 250px;
   }
